@@ -1,7 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-
+#ks3 token
+K3S_TOKEN = 'my_super_secret_token'
 # master config
 MASTER_NAME = 'ybenbraiS'
 MASTER_IP = '192.168.42.110'
@@ -14,7 +15,6 @@ WORKER_IP = '192.168.42.111'
 MEMORY = 1024
 CPU = 1
 BOX = "centos/8"
-# BOX_URL = "https://app.vagrantup.com/centos/boxes/8/versions/2011.0/providers/virtualbox.box"
 BOX_UPDATE = false
 
 # disable firewall so we can have direct ssh access without need to copy our ssh public key to the machine 
@@ -26,38 +26,40 @@ SHELL
 
 Vagrant.configure("2") do |config|
 	config.vm.box = BOX
-	# config.vm.box_url = BOX_URL
 	config.vm.box_check_update = BOX_UPDATE
-	# config.vm.provision "shell", inline: $DISABLE_FIREWALL_SCRIPT 
   
-	config.vm.provider "virtualbox" do |v|
-		v.memory = MEMORY
-		v.cpus = CPU
-		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+config.vm.provider "virtualbox" do |v|
+	v.memory = MEMORY
+	v.cpus = CPU
 	end
 
-	config.vm.define MASTER_NAME do |master|
-		master.vm.hostname = MASTER_NAME
-		master.vm.network :private_network, ip: MASTER_IP
-		master.vm.synced_folder ".", "/vagrant", type: "virtualbox"
-		master.vm.provision "shell", privileged: true, path: "scripts/master_setup.sh", args: [MASTER_IP]
+config.vm.provision "shell",  path: "scripts/bootstrap_centos.sh"
 
-		master.vm.provider "virtualbox" do |v|
-			v.name = MASTER_NAME
-			# v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant", "1"]
-		end
-	end
+config.vm.define MASTER_NAME , primary: true do |master|
+	master.vm.hostname = MASTER_NAME
+	master.vm.network :private_network, ip: MASTER_IP
+	master.vm.provision "shell",
+	env: {"NODE_IP" => MASTER_IP, "WORKER_IP" => WORKER_IP, "WORKER_HOSTNAME" => WORKER_NAME, "TOKEN" => K3S_TOKEN},
+	inline:  <<-EOF
+	  set -eu
+	  echo "$WORKER_IP $WORKER_HOSTNAME" >> /etc/hosts
+	  curl -sfL https://get.k3s.io \
+		| INSTALL_K3S_EXEC="--cluster-init --node-ip=${NODE_IP} --token=${TOKEN} --no-deploy=traefik --write-kubeconfig-mode 644" sh -      
+	  echo "k3S node named $HOSTNAME installed with node ip $NODE_IP."  
+	EOF
+	
+end
 
-	config.vm.define WORKER_NAME do |worker|
-		worker.vm.hostname = WORKER_NAME
-		worker.vm.network :private_network, ip: WORKER_IP 
-		worker.vm.synced_folder ".", "/vagrant", type: "virtualbox"
-		worker.vm.provision "shell", privileged: true, path: "scripts/worker_setup.sh", args: [MASTER_IP, WORKER_IP]
-
-		worker.vm.provider "virtualbox" do |v|
-			v.name = WORKER_NAME
-			# v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant", "1"]
-		end
+config.vm.define WORKER_NAME do |worker|
+	worker.vm.hostname = WORKER_NAME
+	worker.vm.network :private_network, ip: WORKER_IP 
+	worker.vm.provision "shell", env: {"NODE_IP" => WORKER_IP, "MASTER_IP" => MASTER_IP, "MASTER_HOSTNAME" => MASTER_NAME, "TOKEN" => K3S_TOKEN},
+	inline:  <<-EOF
+		set -eu
+		echo "$MASTER_IP $MASTER_HOSTNAME" >> /etc/hosts
+		curl -sfL https://get.k3s.io \
+		  | INSTALL_K3S_EXEC="--server=https://${MASTER_HOSTNAME}:6443 --node-ip=${NODE_IP} --token=${TOKEN}" sh -
+		echo "k3S node named $HOSTNAME installed with node ip $NODE_IP."
+	EOF
 	end
 end
