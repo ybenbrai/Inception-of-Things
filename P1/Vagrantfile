@@ -1,0 +1,57 @@
+#ks3 token
+K3S_TOKEN = 'my_super_secret_token'
+# Server configuration
+MASTER_HOSTNAME = 'oelazzouS'
+MASTER_IP = '192.168.42.110'
+
+#Worker configuration
+WORKER_HOSTNAME = 'oelazzouSW'
+WORKER_IP = '192.168.42.111'
+
+# Machine configuration
+
+MEMORY = 512
+CPU = 1
+BOX = "centos/8"
+BOX_UPDATE = false
+
+Vagrant.configure("2") do |config|
+	config.vm.box = BOX
+	config.vm.box_check_update = BOX_UPDATE
+  
+config.vm.provider "virtualbox" do |v|
+	v.memory = MEMORY
+	v.cpus = CPU
+	end
+
+config.vm.provision "shell",  path: "scripts/bootstrap_centos.sh"
+
+config.vm.define MASTER_HOSTNAME , primary: true do |master|
+	master.vm.hostname = MASTER_HOSTNAME
+	master.vm.network :private_network, ip: MASTER_IP
+	master.vm.provision "shell",
+	env: {"NODE_IP" => MASTER_IP, "WORKER_IP" => WORKER_IP, "WORKER_HOSTNAME" => WORKER_HOSTNAME, "TOKEN" => K3S_TOKEN},
+	inline:  <<-EOF
+	  set -eu
+	  echo "$WORKER_IP $WORKER_HOSTNAME" >> /etc/hosts
+	  curl -sfL https://get.k3s.io \
+		| INSTALL_K3S_EXEC="--cluster-init --node-ip=${NODE_IP} --token=${TOKEN} --no-deploy=traefik --write-kubeconfig-mode 644" sh -      
+	  echo "k3S node named $HOSTNAME installed with node ip $NODE_IP."  
+	EOF
+	
+end
+
+config.vm.define WORKER_HOSTNAME do |worker|
+	worker.vm.hostname = WORKER_HOSTNAME
+	worker.vm.network :private_network, ip: WORKER_IP 
+	worker.vm.provision "shell",
+	env: {"NODE_IP" => WORKER_IP, "MASTER_IP" => MASTER_IP, "MASTER_HOSTNAME" => MASTER_HOSTNAME, "TOKEN" => K3S_TOKEN},
+	inline:  <<-EOF
+		set -eu
+		echo "$MASTER_IP $MASTER_HOSTNAME" >> /etc/hosts
+		curl -sfL https://get.k3s.io \
+		  | INSTALL_K3S_EXEC="--server=https://${MASTER_HOSTNAME}:6443 --node-ip=${NODE_IP} --token=${TOKEN}" sh -
+		echo "k3S node named $HOSTNAME installed with node ip $NODE_IP."
+	EOF
+	end
+end

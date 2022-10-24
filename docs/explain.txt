@@ -1,0 +1,24 @@
+
+
+(basics operation of k3s);
+(basics operation of vagrant);
+(basic operation of k3d);
+(what is coontinous integration and Argo CD);
+
+kubectl get nodes -o wide (explain output);
+(how ingress works);
+...
+
+
+Part one:
+-> K3s and Vagrant:
+	Lightweight Kubernetes. Easy to install, half the memory, all in a binary of less than 100 MB.
+Great for:
+    Edge
+    IoT
+    CI*
+    Development*
+    ARM
+    Embedding K8s
+    Situations where a PhD in K8s clusterology is infeasible
+Operation of all Kubernetes control plane components is encapsulated in a single binary and process. This allows K3s to automate and manage complex cluster operations like distributing certificates.

@@ -9,4 +9,3 @@ dnf -y update
 
 echo "Setting up aliases"
 echo "alias k='kubectl'" >> /home/vagrant/.bashrc
-echo "alias c='clear'" >> /home/vagrant/.bashrc
