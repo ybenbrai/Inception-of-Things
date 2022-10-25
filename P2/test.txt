@@ -1,8 +1,0 @@
-total 16
-drwxr-xr-x  7 macos  staff   224 Sep  3 02:16 .
-drwxr-xr-x  9 macos  staff   288 Sep  2 00:48 ..
-drwxr-xr-x  4 macos  staff   128 Sep  3 01:09 .vagrant
--rw-r--r--@ 1 macos  staff  1212 Sep  2 00:48 Vagrantfile
-drwxr-xr-x  7 macos  staff   224 Sep  1 04:36 config
-drwxr-xr-x  3 macos  staff    96 Aug 31 03:50 scripts
--rw-r--r--  1 macos  staff     0 Sep  3 02:16 test.txt
