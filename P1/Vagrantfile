@@ -1,4 +1,3 @@
-# K3S_TOKEN = 'my_super_secret_token'
 MASTER_HOSTNAME = 'ybenbraiS'
 MASTER_IP = '192.168.42.110'
 EDIT = "modifyvm"
@@ -10,7 +9,7 @@ WORKER_IP = '192.168.42.111'
 
 MEMORY = 512
 CPU = 1
-BOX = "generic/centos8"
+BOX = "generic/centos7"
 BOX_UPDATE = false
 
 
@@ -18,41 +17,28 @@ BOX_UPDATE = false
 
 Vagrant.configure("2") do |config|
 	config.vm.box = BOX
-	config.vm.box_check_update = BOX_UPDATE
-	config.vm.provision "shell", inline: <<-SHELL
-		yum install -y net-tools
-	SHELL
-	config.vm.provision "shell", inline: <<-SHELL
-		systemctl disable firewalld --now
-	SHELL
+	config.vbguest.installer_options = { allow_kernel_upgrade: true }
+	
 
 	config.vm.define MASTER_HOSTNAME do |control|
 		control.vm.hostname = MASTER_HOSTNAME
-		control.vm.network "private_network", ip: MASTER_IP
+		control.vm.network "public_network", ip: MASTER_IP
+		control.vm.synced_folder "./folder", "/shared_folder"
 		control.vm.provider VB do |vb|
-			vb.customize [EDIT, :id, "--name", MASTER_HOSTNAME]
-      		vb.customize [EDIT, :id, "--natdnsproxy1", ACTIVE]
-      		vb.customize [EDIT, :id, "--natdnshostresolver1", ACTIVE]
       		vb.memory = MEMORY
       		vb.cpus = CPU
 		end
-		control.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/tmp/id_rsa.pub"
-		control.vm.provision "file", source: "~/.ssh/id_rsa", destination: "/tmp/id_rsa"
-		control.vm.provision "shell", privileged: true, path: "scripts/mScript.sh"
+		control.vm.provision "shell", path: "scripts/mScript.sh"
 	  end
 
 	  config.vm.define WORKER_HOSTNAME do |control|
 		control.vm.hostname = WORKER_HOSTNAME
-		control.vm.network "private_network", ip: WORKER_IP
+		control.vm.network "public_network", ip: WORKER_IP
+		control.vm.synced_folder "./folder", "/shared_folder"
 		control.vm.provider VB do |v|
-		  v.customize [EDIT, :id, "--name", WORKER_HOSTNAME]
-		  v.customize [EDIT, :id, "--natdnsproxy1", ACTIVE]
-		  v.customize [EDIT, :id, "--natdnshostresolver1", ACTIVE]
 		  v.memory = MEMORY
 		  v.cpus = CPU
 		end
-		control.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/tmp/id_rsa.pub"
-    	control.vm.provision "file", source: "~/.ssh/id_rsa", destination: "/tmp/id_rsa"
-    	control.vm.provision "shell", privileged: true, path: "scripts/wScript.sh"
+    	control.vm.provision "shell", path: "scripts/wScript.sh"
 	end
 end
