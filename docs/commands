@@ -1,3 +1,29 @@
-# list the nodes
+# Cluster Management
 
 `kubectl get nodes -o wide`
+
+- Display endpoint information about the master and services in the cluster
+`kubectl cluster-info`
+`kubectl cluster-info dump`
+
+- Get the configuration of the cluster
+`kubectl config view`
+
+- List the API resources that are available
+`kubectl api-resources`
+
+- List the API versions that are available
+`kubectl api-versions`
+
+List everything
+`kubectl get all --all-namespaces`
+
+List one or more pods
+
+`kubectl get pod`
+
+Display the detailed state of a pods
+`kubectl describe pod <pod_name>`
+
+Display Resource usage (CPU/Memory/Storage) for pods
+`kubectl top pod`

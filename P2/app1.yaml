@@ -10,7 +10,6 @@ spec:
       port: 80
       targetPort: 8080
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,10 +27,10 @@ spec:
         app: app1
     spec:
       containers:
-      - name: app1
-        image: paulbouwer/hello-kubernetes:1.7
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MESSAGE
-          value: This is app1!
+        - name: app1
+          image: paulbouwer/hello-kubernetes:1.7
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MESSAGE
+              value: This is app1!
