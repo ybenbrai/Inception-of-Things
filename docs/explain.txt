@@ -1,24 +1,7 @@
+# vagrant documentation :
 
+https://developer.hashicorp.com/vagrant/docs
 
-(basics operation of k3s);
-(basics operation of vagrant);
-(basic operation of k3d);
-(what is coontinous integration and Argo CD);
+# how to setup a cluster multi install
 
-kubectl get nodes -o wide (explain output);
-(how ingress works);
-...
-
-
-Part one:
--> K3s and Vagrant:
-	Lightweight Kubernetes. Easy to install, half the memory, all in a binary of less than 100 MB.
-Great for:
-    Edge
-    IoT
-    CI*
-    Development*
-    ARM
-    Embedding K8s
-    Situations where a PhD in K8s clusterology is infeasible
-Operation of all Kubernetes control plane components is encapsulated in a single binary and process. This allows K3s to automate and manage complex cluster operations like distributing certificates.
+https://projectcalico.docs.tigera.io/getting-started/kubernetes/k3s/multi-node-install
