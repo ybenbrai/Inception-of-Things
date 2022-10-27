@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/idosdool/arochdi-argocd-app-conf
+    repoURL: https://github.com/ybenbrai/ybenbrai_argo
     targetRevision: HEAD
     path: dev
   destination:
@@ -15,7 +15,7 @@ spec:
 
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
 
     automated:
       selfHeal: true
