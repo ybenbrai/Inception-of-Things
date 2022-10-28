@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/ybenbrai/ybenbrai_argo.git
+    repoURL: https://github.com/ybenbrai/ybenbrai_argo
     targetRevision: HEAD
     path: dev
   destination:
     server: https://kubernetes.default.svc
-    namespace: myapp
+    namespace: dev
 
   syncPolicy:
     syncOptions:
