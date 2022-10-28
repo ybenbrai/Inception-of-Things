@@ -33,7 +33,7 @@ curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
 
 # creating cluster with 3 nodes with loadbalancer
 # load balancer is used to access the cluster from outside
-sudo k3d cluster create my-cluster --port 8080:80@loadbalancer --port 8888:8888@loadbalancer --port 8443:443@loadbalancer --k3s-arg "--disable=traefik@server:0"
+sudo k3d cluster create 1337-cluster --port 8080:80@loadbalancer --port 8888:8888@loadbalancer --port 8443:443@loadbalancer --k3s-arg "--disable=traefik@server:0"
 
 # installing argo CD src: https://argo-cd.readthedocs.io/en/stable/getting_started/
 sudo kubectl create namespace argocd
@@ -45,11 +45,8 @@ sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-
 sudo kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 # deploying argocd
 sudo kubectl -n argocd rollout status deployment argocd-server
-# getting the password
-# sudo kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-
 
 #ressource : https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/
 # applying the file.yaml
-sudo kubectl apply -f deploy.yaml
+sudo kubectl apply -f dev.yaml
 
