@@ -12,8 +12,6 @@ sudo apt install apt-transport-https ca-certificates curl software-properties-co
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 
-# check installating
-apt-cache policy docker-ce
 
 # installing docker
 sudo apt install docker-ce
@@ -35,7 +33,7 @@ curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
 
 # creating cluster with 3 nodes with loadbalancer
 # load balancer is used to access the cluster from outside
-sudo k3d cluster create cluster --port 8080:80@loadbalancer --port 8888:8888@loadbalancer --port 8443:443@loadbalancer
+sudo k3d cluster create my-cluster --port 8080:80@loadbalancer --port 8888:8888@loadbalancer --port 8443:443@loadbalancer
 
 # installing argo CD src: https://argo-cd.readthedocs.io/en/stable/getting_started/
 sudo kubectl create namespace argocd
@@ -44,7 +42,7 @@ sudo kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-
 #Accessing The Argo CD API Server
 # argocd is used to deploy the applications
 # changing the type to Service Type Load Balancer
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+sudo kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 # deploying argocd
 sudo kubectl -n argocd rollout status deploy argocd-server
 # getting the password
