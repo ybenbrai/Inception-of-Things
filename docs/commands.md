@@ -18,10 +18,6 @@
 - List everything
   `kubectl get all --all-namespaces`
 
-- List one or more pods
-
-`kubectl get pod`
-
 - Display the detailed state of a pods
   `kubectl describe pod <pod_name>`
 

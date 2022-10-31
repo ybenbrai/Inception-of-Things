@@ -35,4 +35,4 @@
 
 # decode the password
 
-`echo {psw} | base64 --decode`
+`echo pwd | base64 --decode`
